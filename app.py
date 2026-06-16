@@ -1488,6 +1488,11 @@ def add_page_style() -> None:
         div[data-testid="stToolbar"] {
             display: none;
         }
+        button[kind="header"],
+        [data-testid="stSidebarCollapseButton"],
+        [data-testid="collapsedControl"] {
+            display: none !important;
+        }
         .stApp {
             background:
                 linear-gradient(180deg, rgba(226, 246, 255, 0.72) 0%, rgba(248, 251, 255, 0.88) 36%, #f6fbf4 100%);
@@ -1514,6 +1519,11 @@ def add_page_style() -> None:
                 linear-gradient(180deg, #fff7f1 0%, #eef8ff 48%, #f3fff6 100%);
             border-right: 1px solid #dbeafe;
             box-shadow: 10px 0 28px rgba(15, 23, 42, 0.08);
+            transform: none !important;
+            left: 0 !important;
+            min-width: 22rem !important;
+            max-width: 22rem !important;
+            width: 22rem !important;
         }
         section[data-testid="stSidebar"] * {
             color: #1f2937;
@@ -2905,7 +2915,7 @@ def render_data_table(games: pd.DataFrame, lang: str) -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title=APP_TITLE, layout="wide")
+    st.set_page_config(page_title=APP_TITLE, layout="wide", initial_sidebar_state="expanded")
     add_page_style()
 
     selected_language = st.sidebar.selectbox(

@@ -4,6 +4,9 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
 ![Dataset](https://img.shields.io/badge/Dataset-Curated_Nintendo_Games-0F766E?style=for-the-badge)
 ![Languages](https://img.shields.io/badge/Languages-English%20%7C%20Korean%20%7C%20Chinese-F59E0B?style=for-the-badge)
+![Kaggle](https://img.shields.io/badge/Kaggle-Starter_Datasets-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)
+![Source](https://img.shields.io/badge/Source-Nintendo_Metadata-4B5563?style=for-the-badge)
+![Source](https://img.shields.io/badge/Source-Switch_Review_Supplement-7C3AED?style=for-the-badge)
 
 A multilingual Streamlit recommendation site for Nintendo players who are trying to answer a practical question:
 
@@ -35,6 +38,24 @@ It separates the system into three layers:
 - **Official Presentation Layer**: localized titles, official Nintendo images, and region-specific official game detail pages when verified.
 
 That structure makes the recommendations more transparent and easier to explain than a black-box model.
+
+## Data Sources
+
+Nintendo Game Compass did not start from a blank spreadsheet. The first working version was built from two Kaggle starter datasets, then refined into a curated Nintendo-focused decision tool.
+
+- **Nintendo Games Dataset**  
+  Used as the historical Nintendo metadata base for titles, platforms, release dates, genres, developers, ESRB ratings, and review-related fields.
+- **Nintendo Switch review / Metacritic-style starter dataset**  
+  Used as the recent-era scoring and release cross-check layer for newer Switch-focused titles.
+
+Those starter files were then extended with:
+
+- manually curated recommendation tags
+- English, Korean, and Chinese localized titles
+- verified official Nintendo regional product links
+- cached official Nintendo promotional images
+
+This is why the project is best understood as a **curated recommendation dataset**, not just a raw CSV viewer.
 
 ## Key Features
 
