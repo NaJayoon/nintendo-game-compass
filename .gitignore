@@ -1,0 +1,17 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+
+.streamlit_home/
+.pycache_check/
+.streamlit/secrets.toml
+
+*.log
+
+# Local QA screenshots/previews, not needed for deployment.
+*-preview.png
+*-check.jpg
+*-contact-sheet.jpg
+replacement-images-preview.jpg
+replacement-page-preview.png
+image-replacement-check.jpg
