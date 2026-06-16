@@ -1488,11 +1488,6 @@ def add_page_style() -> None:
         div[data-testid="stToolbar"] {
             display: none;
         }
-        button[kind="header"],
-        [data-testid="stSidebarCollapseButton"],
-        [data-testid="collapsedControl"] {
-            display: none !important;
-        }
         .stApp {
             background:
                 linear-gradient(180deg, rgba(226, 246, 255, 0.72) 0%, rgba(248, 251, 255, 0.88) 36%, #f6fbf4 100%);
@@ -1519,11 +1514,41 @@ def add_page_style() -> None:
                 linear-gradient(180deg, #fff7f1 0%, #eef8ff 48%, #f3fff6 100%);
             border-right: 1px solid #dbeafe;
             box-shadow: 10px 0 28px rgba(15, 23, 42, 0.08);
-            transform: none !important;
-            left: 0 !important;
-            min-width: 22rem !important;
-            max-width: 22rem !important;
-            width: 22rem !important;
+        }
+        [data-testid="stSidebarCollapseButton"],
+        [data-testid="collapsedControl"],
+        button[kind="header"] {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 1000 !important;
+        }
+        [data-testid="collapsedControl"] {
+            position: fixed !important;
+            top: 0.9rem !important;
+            left: 0.9rem !important;
+            width: 2.75rem !important;
+            height: 2.75rem !important;
+            border-radius: 999px !important;
+            background: rgba(255, 255, 255, 0.94) !important;
+            border: 1px solid rgba(251, 146, 60, 0.35) !important;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12) !important;
+            backdrop-filter: blur(10px);
+        }
+        [data-testid="stSidebarCollapseButton"] {
+            border-radius: 999px !important;
+            background: rgba(255, 255, 255, 0.88) !important;
+            border: 1px solid rgba(251, 146, 60, 0.28) !important;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08) !important;
+            backdrop-filter: blur(8px);
+        }
+        [data-testid="stSidebarCollapseButton"]:hover,
+        [data-testid="collapsedControl"]:hover,
+        button[kind="header"]:hover {
+            background: rgba(255, 247, 237, 0.98) !important;
+            border-color: rgba(239, 68, 68, 0.35) !important;
         }
         section[data-testid="stSidebar"] * {
             color: #1f2937;
