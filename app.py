@@ -1484,9 +1484,22 @@ def add_page_style() -> None:
         <style>
         #MainMenu,
         footer,
-        div[data-testid="stDecoration"],
-        div[data-testid="stToolbar"] {
+        div[data-testid="stDecoration"] {
             display: none;
+        }
+        div[data-testid="stToolbar"] {
+            position: fixed !important;
+            top: 0.85rem !important;
+            left: 0.85rem !important;
+            right: auto !important;
+            bottom: auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            z-index: 1002 !important;
+            padding: 0 !important;
         }
         .stApp {
             background:
@@ -1526,6 +1539,18 @@ def add_page_style() -> None:
             z-index: 1000 !important;
         }
         [data-testid="collapsedControl"] {
+            position: fixed !important;
+            top: 0.9rem !important;
+            left: 0.9rem !important;
+            width: 2.75rem !important;
+            height: 2.75rem !important;
+            border-radius: 999px !important;
+            background: rgba(255, 255, 255, 0.94) !important;
+            border: 1px solid rgba(251, 146, 60, 0.35) !important;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12) !important;
+            backdrop-filter: blur(10px);
+        }
+        button[kind="header"] {
             position: fixed !important;
             top: 0.9rem !important;
             left: 0.9rem !important;
