@@ -107,6 +107,14 @@ TEXT = {
         "quick_games_desc": "have curated decision labels.",
         "finder_main_kicker": "Main compass",
         "finder_main_note": "Use this as the starting shelf: pick your console, mood, people, time, and budget, then let the list shrink naturally.",
+        "snapshot_kicker": "Dashboard snapshot",
+        "snapshot_title": "Quick data view",
+        "snapshot_desc": "See how the current results are distributed before you dive into individual game cards.",
+        "chart_platform_mix": "Platform mix",
+        "chart_genre_mix": "Main genre mix",
+        "chart_mood_mix": "Mood tags",
+        "chart_release_years": "Release years",
+        "chart_empty": "Not enough chart data yet.",
         "data_notes": "Data Source & Accuracy Notes",
         "tab_finder": "Game Finder",
         "tab_tonight": "Tonight's Pick",
@@ -231,6 +239,14 @@ TEXT = {
         "quick_games_desc": "개 게임에 큐레이션 라벨이 있습니다.",
         "finder_main_kicker": "메인 선택 도구",
         "finder_main_note": "가장 먼저 쓰는 게임 선반입니다. 기기, 기분, 인원, 시간, 예산을 고르면 목록이 자연스럽게 줄어듭니다.",
+        "snapshot_kicker": "데이터 스냅샷",
+        "snapshot_title": "빠른 데이터 보기",
+        "snapshot_desc": "게임 카드를 보기 전에 현재 결과가 어떤 식으로 분포되어 있는지 한눈에 확인합니다.",
+        "chart_platform_mix": "플랫폼 분포",
+        "chart_genre_mix": "주요 장르 분포",
+        "chart_mood_mix": "분위기 태그",
+        "chart_release_years": "출시 연도",
+        "chart_empty": "차트로 보여 줄 데이터가 아직 부족합니다.",
         "data_notes": "데이터 출처 및 정확도 메모",
         "tab_finder": "게임 찾기",
         "tab_tonight": "오늘 밤 추천",
@@ -355,6 +371,14 @@ TEXT = {
         "quick_games_desc": "款游戏有人工决策标签。",
         "finder_main_kicker": "主选择台",
         "finder_main_note": "这里是最主要的游戏筛选入口。先选主机，再按心情、人数、时长和预算，把候选游戏自然缩小。",
+        "snapshot_kicker": "数据快照",
+        "snapshot_title": "快速数据概览",
+        "snapshot_desc": "在看具体游戏卡片之前，先快速看看当前结果是怎么分布的。",
+        "chart_platform_mix": "平台分布",
+        "chart_genre_mix": "主要类型分布",
+        "chart_mood_mix": "心情标签分布",
+        "chart_release_years": "发售年份分布",
+        "chart_empty": "当前没有足够的数据生成图表。",
         "data_notes": "数据来源与准确性说明",
         "tab_finder": "游戏筛选",
         "tab_tonight": "今晚推荐",
@@ -2245,6 +2269,87 @@ def format_count_option(lang: str, value: int, total_count: int) -> str:
     return str(value)
 
 
+def iter_chart_tags(value: object) -> list[str]:
+    tags = parse_tags(value)
+    if tags:
+        return tags
+    text = clean_text(value, "")
+    return [text] if text else []
+
+
+def build_category_distribution(dataframe: pd.DataFrame, column: str, lang: str, top_n: int = 8) -> pd.DataFrame:
+    if column not in dataframe.columns:
+        return pd.DataFrame(columns=["count"])
+
+    counts: dict[str, int] = {}
+    for value in dataframe[column].dropna():
+        for item in iter_chart_tags(value):
+            item = clean_text(item, "")
+            if not item:
+                continue
+            counts[item] = counts.get(item, 0) + 1
+
+    if not counts:
+        return pd.DataFrame(columns=["count"])
+
+    series = pd.Series(counts).sort_values(ascending=False).head(top_n)
+    labels = [localize_value(lang, str(index)) for index in series.index]
+    return pd.DataFrame({"count": series.to_list()}, index=labels)
+
+
+def build_release_year_distribution(dataframe: pd.DataFrame) -> pd.DataFrame:
+    if "date" not in dataframe.columns:
+        return pd.DataFrame(columns=["count"])
+
+    years = pd.to_datetime(dataframe["date"], errors="coerce").dt.year.dropna()
+    if years.empty:
+        return pd.DataFrame(columns=["count"])
+
+    counts = years.astype(int).value_counts().sort_index()
+    return pd.DataFrame({"count": counts.to_list()}, index=counts.index.astype(str))
+
+
+def render_snapshot_chart(title: str, dataframe: pd.DataFrame, lang: str) -> None:
+    with st.container(border=True):
+        st.markdown(f"#### {title}")
+        if dataframe.empty:
+            st.info(t(lang, "chart_empty"))
+        else:
+            st.bar_chart(dataframe, height=260)
+
+
+def render_dashboard_snapshot(dataframe: pd.DataFrame, lang: str) -> None:
+    render_section_intro(t(lang, "snapshot_title"), t(lang, "snapshot_desc"), t(lang, "snapshot_kicker"))
+
+    chart_columns_top = st.columns(2)
+    with chart_columns_top[0]:
+        render_snapshot_chart(
+            t(lang, "chart_platform_mix"),
+            build_category_distribution(dataframe, "platform_group", lang, top_n=6),
+            lang,
+        )
+    with chart_columns_top[1]:
+        render_snapshot_chart(
+            t(lang, "chart_genre_mix"),
+            build_category_distribution(dataframe, "genre_main", lang, top_n=8),
+            lang,
+        )
+
+    chart_columns_bottom = st.columns(2)
+    with chart_columns_bottom[0]:
+        render_snapshot_chart(
+            t(lang, "chart_mood_mix"),
+            build_category_distribution(dataframe, "mood", lang, top_n=8),
+            lang,
+        )
+    with chart_columns_bottom[1]:
+        render_snapshot_chart(
+            t(lang, "chart_release_years"),
+            build_release_year_distribution(dataframe),
+            lang,
+        )
+
+
 def apply_compass_filters(games: pd.DataFrame, lang: str) -> pd.DataFrame:
     """Render a compact game-picker panel and apply choices in user-facing groups."""
     filtered = ensure_columns(games)
@@ -2485,6 +2590,8 @@ def render_game_finder(games: pd.DataFrame, lang: str) -> None:
     if filtered.empty:
         st.info(t(lang, "no_matches"))
         return
+
+    render_dashboard_snapshot(filtered, lang)
 
     sort_options = ["Best reviewed", "Newest", "Title A-Z"] if lang == "en" else ["Best reviewed", "Newest"]
     sort_mode = st.radio(
@@ -2899,6 +3006,7 @@ def render_budget_planner(games: pd.DataFrame, lang: str) -> None:
 
 def render_data_table(games: pd.DataFrame, lang: str) -> None:
     render_section_intro(t(lang, "tab_table"), t(lang, "table_desc"), t(lang, "tab_table"))
+    render_dashboard_snapshot(games, lang)
 
     st.dataframe(games[DISPLAY_COLUMNS], width="stretch", hide_index=True)
 

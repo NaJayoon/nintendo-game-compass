@@ -17,6 +17,8 @@ Instead of trying to be a huge game encyclopedia, this project focuses on helpin
 
 - **Game Finder**  
   Filter by platform, genre, mood, player type, difficulty, multiplayer needs, and review score.
+- **Dashboard Snapshot**  
+  Show quick charts for platform mix, genre mix, mood tags, and release-year distribution.
 - **Beginner Roadmap**  
   Give new players a simpler entry route instead of dropping them into a huge library.
 - **Tonight's Pick**  
