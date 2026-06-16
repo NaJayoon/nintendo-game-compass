@@ -1950,6 +1950,96 @@ def add_page_style() -> None:
             margin: 0;
             max-width: 820px;
         }
+        .snapshot-shell {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 18px 18px 12px;
+            margin: 8px 0 18px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+        }
+        .snapshot-shell .snapshot-kicker {
+            display: inline-block;
+            color: #be123c;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .snapshot-shell h3 {
+            color: #111827;
+            font-size: 1.3rem;
+            line-height: 1.2;
+            margin: 0 0 6px;
+        }
+        .snapshot-shell p {
+            color: #64748b;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            margin: 0 0 14px;
+            max-width: 760px;
+        }
+        .snapshot-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+        .snapshot-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            padding: 14px;
+        }
+        .snapshot-card h4 {
+            margin: 0 0 10px;
+            color: #172033;
+            font-size: 0.98rem;
+        }
+        .snapshot-row {
+            margin-bottom: 10px;
+        }
+        .snapshot-row:last-child {
+            margin-bottom: 0;
+        }
+        .snapshot-row-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: baseline;
+            margin-bottom: 5px;
+        }
+        .snapshot-label {
+            color: #334155;
+            font-size: 0.83rem;
+            line-height: 1.3;
+            flex: 1;
+        }
+        .snapshot-value {
+            color: #0f172a;
+            font-size: 0.82rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .snapshot-track {
+            height: 8px;
+            border-radius: 999px;
+            background: #e8eef6;
+            overflow: hidden;
+        }
+        .snapshot-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #ef4444 0%, #f59e0b 45%, #22c55e 100%);
+        }
+        .snapshot-empty {
+            color: #64748b;
+            font-size: 0.84rem;
+            line-height: 1.45;
+            padding: 6px 0 2px;
+        }
         .game-card {
             background: #ffffff;
             border: 1px solid #e3e7ee;
@@ -2069,6 +2159,9 @@ def add_page_style() -> None:
             }
             .quick-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .snapshot-grid {
+                grid-template-columns: 1fr;
             }
             .filter-heading {
                 align-items: flex-start;
@@ -2309,45 +2402,73 @@ def build_release_year_distribution(dataframe: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame({"count": counts.to_list()}, index=counts.index.astype(str))
 
 
-def render_snapshot_chart(title: str, dataframe: pd.DataFrame, lang: str) -> None:
-    with st.container(border=True):
-        st.markdown(f"#### {title}")
-        if dataframe.empty:
-            st.info(t(lang, "chart_empty"))
-        else:
-            st.bar_chart(dataframe, height=260)
+def render_snapshot_chart(title: str, dataframe: pd.DataFrame, lang: str) -> str:
+    if dataframe.empty:
+        return (
+            '<div class="snapshot-card">'
+            f"<h4>{escape(title)}</h4>"
+            f'<div class="snapshot-empty">{escape(t(lang, "chart_empty"))}</div>'
+            "</div>"
+        )
+
+    top_rows = dataframe.head(6)
+    max_count = max(int(value) for value in top_rows["count"]) or 1
+    rows_html: list[str] = []
+    for label, row in top_rows.iterrows():
+        count = int(row["count"])
+        width = max(12, round((count / max_count) * 100))
+        rows_html.append(
+            '<div class="snapshot-row">'
+            f'<div class="snapshot-row-head"><span class="snapshot-label">{escape(str(label))}</span>'
+            f'<span class="snapshot-value">{count}</span></div>'
+            f'<div class="snapshot-track"><div class="snapshot-fill" style="width:{width}%"></div></div>'
+            "</div>"
+        )
+
+    return (
+        '<div class="snapshot-card">'
+        f"<h4>{escape(title)}</h4>"
+        f"{''.join(rows_html)}"
+        "</div>"
+    )
 
 
 def render_dashboard_snapshot(dataframe: pd.DataFrame, lang: str) -> None:
-    render_section_intro(t(lang, "snapshot_title"), t(lang, "snapshot_desc"), t(lang, "snapshot_kicker"))
-
-    chart_columns_top = st.columns(2)
-    with chart_columns_top[0]:
+    cards_html = [
         render_snapshot_chart(
             t(lang, "chart_platform_mix"),
             build_category_distribution(dataframe, "platform_group", lang, top_n=6),
             lang,
-        )
-    with chart_columns_top[1]:
+        ),
         render_snapshot_chart(
             t(lang, "chart_genre_mix"),
             build_category_distribution(dataframe, "genre_main", lang, top_n=8),
             lang,
-        )
-
-    chart_columns_bottom = st.columns(2)
-    with chart_columns_bottom[0]:
+        ),
         render_snapshot_chart(
             t(lang, "chart_mood_mix"),
             build_category_distribution(dataframe, "mood", lang, top_n=8),
             lang,
-        )
-    with chart_columns_bottom[1]:
+        ),
         render_snapshot_chart(
             t(lang, "chart_release_years"),
             build_release_year_distribution(dataframe),
             lang,
-        )
+        ),
+    ]
+    st.markdown(
+        f"""
+        <section class="snapshot-shell">
+            <span class="snapshot-kicker">{escape(t(lang, "snapshot_kicker"))}</span>
+            <h3>{escape(t(lang, "snapshot_title"))}</h3>
+            <p>{escape(t(lang, "snapshot_desc"))}</p>
+            <div class="snapshot-grid">
+                {''.join(cards_html)}
+            </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def apply_compass_filters(games: pd.DataFrame, lang: str) -> pd.DataFrame:
@@ -2590,8 +2711,6 @@ def render_game_finder(games: pd.DataFrame, lang: str) -> None:
     if filtered.empty:
         st.info(t(lang, "no_matches"))
         return
-
-    render_dashboard_snapshot(filtered, lang)
 
     sort_options = ["Best reviewed", "Newest", "Title A-Z"] if lang == "en" else ["Best reviewed", "Newest"]
     sort_mode = st.radio(
