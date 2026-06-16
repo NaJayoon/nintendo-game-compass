@@ -1501,6 +1501,10 @@ def add_page_style() -> None:
             z-index: 1002 !important;
             padding: 0 !important;
         }
+        div[data-testid="stToolbar"] a,
+        div[data-testid="stToolbar"] button:not([kind="header"]) {
+            display: none !important;
+        }
         .stApp {
             background:
                 linear-gradient(180deg, rgba(226, 246, 255, 0.72) 0%, rgba(248, 251, 255, 0.88) 36%, #f6fbf4 100%);
